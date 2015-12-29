@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 // POSIX
+#include <netinet/tcp.h>  /* for TCP_NODELAY */
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/mman.h>
@@ -65,11 +66,21 @@ BindElem::add_listen_conn()
 		//set nonblock
 		set_io_blockability(listenfd, 1);
 
+		int tcp_nodelay = config_get_intval("tcp_nodelay", 0);
+		if (tcp_nodelay) {
+			if (setsockopt(listenfd, IPPROTO_TCP, TCP_NODELAY, (const void*)&tcp_nodelay, sizeof(int)) == -1) {
+				ret_code = -2;
+				goto listen_end;
+			}
+		}
+
+		DEBUG_LOG("tcp_nodelay[%d]",tcp_nodelay);
 		//ERROR_LOG("start_net:do add conn[%d]",listenfd);
 		g_sock_conn.add_one_conn(listenfd, em_fd_type_listen, 0, this);
 		ret_code = 0;
 	}
 
+listen_end:
 	BOOT_LOG(ret_code, "Listen on %s:%u", (bind_ip ? bind_ip : "ANYADDR"), bind_port);
 }
 
