@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/epoll.h>
+#include <netinet/tcp.h>  /* for TCP_NODELAY */
 
 #include "inet_utils.h"
 #include "tcp.h"
@@ -22,6 +23,13 @@ int set_io_blockability(int fd, int nonblock)
 	return fcntl(fd, F_SETFL, val);
 }
 
+int set_tcp_nodelay(int fd, int nodelay)
+{
+	if (nodelay) {
+		return setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (const void*)&nodelay, sizeof(int));
+	}
+	return 0;
+}
 int set_sock_snd_timeo(int sockfd, int millisec)
 {
 	struct timeval tv;

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 // POSIX
-#include <netinet/tcp.h>  /* for TCP_NODELAY */
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/mman.h>
@@ -68,7 +67,7 @@ BindElem::add_listen_conn()
 
 		int tcp_nodelay = config_get_intval("tcp_nodelay", 0);
 		if (tcp_nodelay) {
-			if (setsockopt(listenfd, IPPROTO_TCP, TCP_NODELAY, (const void*)&tcp_nodelay, sizeof(int)) == -1) {
+			if (set_tcp_nodelay(listenfd, tcp_nodelay) != 0) {
 				ret_code = -2;
 				goto listen_end;
 			}
