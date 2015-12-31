@@ -102,7 +102,7 @@ BindManage::~BindManage()
 int 
 BindManage::load_bind_file(const char* file_name)
 {
-	const int cn_max_field_num = 4;
+	const int cn_max_field_num = 5;
 	int	ret_code = -1;
 	char* buf;
 
@@ -123,6 +123,7 @@ BindManage::load_bind_file(const char* file_name)
 				strncpy(bc->server_name, field[1], sizeof(bc->server_name) - 1); // server name
 				strncpy(bc->bind_ip, field[2], sizeof(bc->bind_ip) - 1); // server ip
 				bc->bind_port = atoi(field[3]); // server port
+				bc->bind_udp_port = atoi(field[4]); // server udp port
 				// increase bind_num
 				++(bind_num);
 			}

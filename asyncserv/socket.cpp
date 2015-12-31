@@ -126,8 +126,7 @@ SocketConn::bind_udp_socket( const char* ipaddr, in_port_t port )
 		errno = err;
 		return -1;
 	}
-	ERROR_LOG("bind_udp_socket:do add conn[%d]",listenfd);
-	//return do_add_conn(listenfd, em_fd_type_udp, &servaddr, 0);
+	DEBUG_LOG("bind_udp_socket:do add conn[%d]",listenfd);
 	return add_one_conn(listenfd, em_fd_type_udp, &servaddr, 0);
 }
 
@@ -681,8 +680,9 @@ recv_again:
 	if (fds[fd].buff.recv_buf != tmp_recv_buf) {
 		if (fds[fd].buff.recv_len) {
 			//TODO：效率不好
-			memcpy(fds[fd].buff.swap_recv_buf, tmp_recv_buf, fds[fd].buff.recv_len);
-			memcpy(fds[fd].buff.recv_buf, fds[fd].buff.swap_recv_buf, fds[fd].buff.recv_len);
+			//memcpy(fds[fd].buff.swap_recv_buf, tmp_recv_buf, fds[fd].buff.recv_len);
+			//memcpy(fds[fd].buff.recv_buf, fds[fd].buff.swap_recv_buf, fds[fd].buff.recv_len);
+			memmove(fds[fd].buff.recv_buf, tmp_recv_buf, fds[fd].buff.recv_len);
 		}
 	}
 

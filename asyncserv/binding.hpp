@@ -36,6 +36,7 @@ public:
 	char		server_name[16];
 	char		bind_ip[16];
 	in_port_t	bind_port;
+	in_port_t	bind_udp_port;
 	uint8_t		restart_cnt;
 	ShmqQueue	sendq;
 	ShmqQueue	recvq;

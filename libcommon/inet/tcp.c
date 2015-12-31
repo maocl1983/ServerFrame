@@ -30,6 +30,7 @@ int set_tcp_nodelay(int fd, int nodelay)
 	}
 	return 0;
 }
+
 int set_sock_snd_timeo(int sockfd, int millisec)
 {
 	struct timeval tv;

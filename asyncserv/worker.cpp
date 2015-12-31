@@ -76,6 +76,16 @@ Worker::handle_init()
 	my_bind_elem->add_pipe_conn(em_recv_pipe);
 	TRACE_LOG("service.cpp:do add conn[%d]",my_bind_elem->recvq.get_pipe_handle(0));
 
+	//是否开启udp端口
+	if (my_bind_elem->bind_udp_port > 0) {
+		const char* bind_ip = my_bind_elem->bind_ip;
+		in_port_t bind_port = my_bind_elem->bind_udp_port;
+		if (g_sock_conn.bind_udp_socket(bind_ip, bind_port) == -1) {
+			ERROR_LOG("bind_udp_socket error!ip=[%s %d]", bind_ip, bind_port);
+			return -1;
+		}
+	}
+
 	//组播设置
 	if (g_dll.proc_mcast_pkg && (g_mcast.asynsvr_create_mcast_socket() == -1)) {
 		return -1;
