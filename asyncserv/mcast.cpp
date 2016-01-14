@@ -289,20 +289,20 @@ Mcast::proc_reload_plugin(reload_text_pkg_t* pkg, int len)
 	}
 
 	pkg->new_so_name[sizeof(pkg->new_so_name) - 1] = '\0';
-	/*if (dll.before_reload && (dll.before_reload(is_parent) == -1)) {
-		exit(-1);
-	}*/
+	if (!is_parent && g_dll.before_global_reload) {
+		g_dll.before_global_reload();
+	}
 
 	g_dll.unregister_plugin();
 
-	DEBUG_LOG("RELOAD %s", pkg->new_so_name);
+	DEBUG_LOG("RELOADS %s", pkg->new_so_name);
 
 	if (g_dll.register_plugin(pkg->new_so_name, 1) == -1) {
 		exit(-1);
 	}
 
-	/*if (!is_parent && dll.reload_global_data && (dll.reload_global_data() == -1)) {
-		exit(-1);
-	}*/
+	if (!is_parent && g_dll.reload_global_data) {
+		g_dll.reload_global_data();
+	}
 }
 

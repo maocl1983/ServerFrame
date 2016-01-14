@@ -20,7 +20,7 @@ set (SRC_LIST
 	shmq.cpp
 	)
 #add_definitions("-Wall -MMD -g  -DDEBUG -O2 -funroll-loops -D__USE_STRING_INLINES -D_REENTRANT -D_GNU_SOURCE")
-add_definitions("-Wall -MMD -g  -DDEBUG -funroll-loops -D__USE_STRING_INLINES -D_REENTRANT -D_GNU_SOURCE")
+add_definitions("-Wall -MMD -g  -DDEBUG -DENABLE_TRACE_LOG -funroll-loops -D__USE_STRING_INLINES -D_REENTRANT -D_GNU_SOURCE")
 INCLUDE_DIRECTORIES( ${GLIB_INCLUDE_DIR}	${COMMON_INCLUDE_DIR} 	)
 set (EXTRA_LIBS ${EXTRA_LIBS} glib-2.0 m common dl ssl)
 add_executable(AsynServ_Dev ${SRC_LIST}   )

@@ -73,7 +73,7 @@ BindElem::add_listen_conn()
 			}
 		}
 
-		DEBUG_LOG("tcp_nodelay[%d]",tcp_nodelay);
+		DEBUG_LOG("set tcp_nodelay flag: [%d]",tcp_nodelay);
 		//ERROR_LOG("start_net:do add conn[%d]",listenfd);
 		g_sock_conn.add_one_conn(listenfd, em_fd_type_listen, 0, this);
 		ret_code = 0;

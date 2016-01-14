@@ -78,6 +78,7 @@ int main(int argc, char* argv[])
 
     //asynsvr_init_warning_system();
 
+	g_dll.register_data_plugin(config_get_strval("data_dll_file"));
 	g_dll.register_plugin(config_get_strval("dll_file"), 0);
 
 	g_sock_conn.init(g_daemon.max_fd_num, g_daemon.max_fd_num);

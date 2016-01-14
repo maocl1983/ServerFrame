@@ -29,6 +29,7 @@ DllInterface g_dll;
 DllInterface::DllInterface()
 {
 	handle = 0;
+	data_handle = 0;
 	init_service = 0;
 	fini_service = 0;
 	proc_events = 0;
@@ -40,6 +41,32 @@ DllInterface::DllInterface()
 	proc_pkg_from_serv = 0;
 	on_client_conn_closed = 0;
 	on_fd_closed = 0;
+}
+
+int 
+DllInterface::register_data_plugin(const char* file_name)
+{
+	char* error; 
+	int ret_code = 0;
+	if (file_name == NULL)
+		return 0;
+
+	data_handle = dlopen(file_name, RTLD_NOW | RTLD_GLOBAL);
+	if ((error = dlerror()) != NULL) {
+		ERROR_LOG("dlopen data error, %s", error);
+		ret_code = -1;
+	}
+	
+	BOOT_LOG(ret_code, "dlopen data %s", file_name);
+}
+
+void 
+DllInterface::unregister_data_plugin()
+{
+	if (data_handle != NULL){
+		dlclose(data_handle);
+		data_handle = NULL;
+	}
 }
 
 int 
@@ -66,8 +93,8 @@ DllInterface::register_plugin(const char* file_name, int flag)
 	DLFUNC(handle, on_client_conn_closed, "on_client_conn_closed");
 	DLFUNC(handle, on_fd_closed, "on_fd_closed");
 
-	//DLFUNC_NO_ERROR(dll.handle, dll.before_reload, "before_reload");
-	//DLFUNC_NO_ERROR(dll.handle, dll.reload_global_data, "reload_global_data");
+	DLFUNC_NO_ERROR(handle, before_global_reload, "before_global_reload");
+	DLFUNC_NO_ERROR(handle, reload_global_data, "reload_global_data");
 	//DLFUNC_NO_ERROR(dll.handle, dll.sync_service_info, "sync_service_info");
 
 	ret_code = 0;
@@ -87,6 +114,7 @@ DllInterface::unregister_plugin()
 	if (handle != NULL){
 		dlclose(handle);
 		handle = NULL;
+		DEBUG_LOG("UNLOADS");
 	}
 }
 

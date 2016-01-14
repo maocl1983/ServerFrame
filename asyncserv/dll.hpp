@@ -28,6 +28,8 @@ public:
 	void (*on_client_conn_closed)(int fd);
 	void (*on_fd_closed)(int fd);
 	void (*proc_events)();
+	void (*reload_global_data)();
+	void (*before_global_reload)();
 
 	/* The following 3 interfaces are called both by the parent and child process */
 	int	(*init_service)(int isparent);
@@ -36,10 +38,13 @@ public:
 	int (*proc_udp_pkg)(int fd, const void* avail_data, int avail_len ,struct sockaddr_in * from, socklen_t fromlen );
 public:
 	DllInterface();
+	int register_data_plugin(const char* file_name);
+	void unregister_data_plugin();
 	int register_plugin(const char* file_name, int flag);
 	void unregister_plugin();
 private:
 	void*   handle; // Hold the handle returned by dlopen
+	void*   data_handle; // Hold the handle returned by dlopen
 };
 
 extern DllInterface g_dll;
