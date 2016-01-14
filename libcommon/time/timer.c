@@ -2,14 +2,14 @@
 
 #include "timer.h"
 
-static struct list_head	timers_list;
+static struct list_head* g_timers_list;
 
 /*enum {
 	max_timer_type	= 10000
 };*/
 
 /*用于保存定时器回调函数的地址*/
-//static callback_func_t tcfs[max_timer_type];
+static callback_func_t* g_tcfs;
 
 //static inline timer_struct_t*
 //find_event(callback_func_t func);
@@ -17,17 +17,22 @@ static struct list_head	timers_list;
 //static inline timer_struct_t*
 //find_event_with_expire(list_head_t* head, callback_func_t function, time_t expire);
 
-void setup_timer()
+void setup_timer(struct list_head* t, callback_func_t* cbs, int init_flag)
 {
-	renew_now();
-	INIT_LIST_HEAD(&timers_list);
+	g_timers_list = t;
+	g_tcfs = cbs;
+	
+	if (init_flag) {
+		renew_now();
+		INIT_LIST_HEAD(g_timers_list);
+	}
 }
 
 void destroy_timer()
 {
 	list_head_t *l, *p;
 
-	list_for_each_safe(l, p, &timers_list) {
+	list_for_each_safe(l, p, g_timers_list) {
 		timer_struct_t* t = list_entry(l, timer_struct_t, global_entry);
 		do_remove_timer(t, 1);
 	}	
@@ -45,7 +50,8 @@ void handle_timer()
 }
 
 timer_struct_t*
-add_timer_event(struct list_head* head, callback_func_t function, void* owner, void* data, uint32_t add_micro)
+//add_timer_event(struct list_head* head, callback_func_t function, void* owner, void* data, uint32_t add_micro)
+add_timer_event(struct list_head* head, int cb_index, void* owner, void* data, uint32_t add_micro)
 {
 	renew_now();
 	
@@ -53,8 +59,10 @@ add_timer_event(struct list_head* head, callback_func_t function, void* owner, v
 	timer = g_slice_alloc(sizeof *timer);
 	INIT_LIST_HEAD(&timer->global_entry);
 	INIT_LIST_HEAD(&timer->owner_entry);
-	timer->function  = function;
-	timer->func_indx = 0;
+	timer->function  = g_tcfs[cb_index];
+	timer->func_indx = cb_index;
+	//timer->function  = function;
+	//timer->func_indx = 0;
 	timer->owner     = owner;
 	timer->data      = data;
 	timer->tv		 = *get_now_tv();
@@ -63,7 +71,7 @@ add_timer_event(struct list_head* head, callback_func_t function, void* owner, v
 	if (head) {
 		list_add_tail(&timer->owner_entry, head);
 	}
-	list_add_tail(&timer->global_entry, &timers_list);
+	list_add_tail(&timer->global_entry, g_timers_list);
 	return timer;
 }
 
@@ -86,7 +94,7 @@ void scan_timers_list()
 	list_head_t *l, *p;
 	timer_struct_t* t;
 
-	list_for_each_safe(l, p, &timers_list) {
+	list_for_each_safe(l, p, g_timers_list) {
 		t = list_entry(l, timer_struct_t, global_entry);
 		if (!(t->function)) {
 			do_remove_timer(t, 1);
@@ -177,37 +185,44 @@ find_event_with_expire(list_head_t* head, callback_func_t function, time_t expir
 }*/
 
 /*根据定时器的类型ID登记回调函数的地址*/
-/*int register_timer_callback(int nbr, callback_func_t cb)
+int register_timer_callback(int nbr, callback_func_t cb, int max_timer_type)
 {
 	if (nbr <= 0 || nbr >= max_timer_type) {
 		return -1;
 	}
-	if (tcfs[nbr]) {
+	if (g_tcfs[nbr]) {
 		return -1;
 	}
-	tcfs[nbr] = cb;
+	g_tcfs[nbr] = cb;
 	return 0;
 }
 
+/*
 void unregister_timers_callback()
 {
 	memset(tcfs, 0, sizeof(tcfs));
 }
 */
+
 /*重新加载text.so后，回调函数的地址发生变化，更新已启动的定时器回调函数地址*/
-/*void refresh_timers_callback()
+void refresh_timers_callback()
 {
-	int i;
+	/*int i;
 	for (i = 0; i < TIMER_VEC_SIZE; i++) {
 		timer_struct_t* t;
 		list_for_each_entry (t, &vec[i].head, entry) {
 			t->function = tcfs[t->func_indx];
 		}	
-	}
+	}*/
+		
+	timer_struct_t* t;
+	list_for_each_entry (t, g_timers_list, global_entry) {
+		t->function = g_tcfs[t->func_indx];
+	}	
 
-	micro_timer_struct_t* mt;
-	list_for_each_entry (mt, &micro_timer, entry) {
+	/*micro_timer_struct_t* mt;
+	list_for_each_entry (mt, &micro_timer, global_entry) {
 		mt->function = tcfs[mt->func_indx];
-	}
+	}*/
 }
-*/
+

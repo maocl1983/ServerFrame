@@ -62,7 +62,8 @@ typedef enum timer_add_mode {
  * @brief  初始化定时器功能。必须调用了这个函数，才能使用定时器功能。
  * @see    destroy_timer
  */
-void setup_timer();
+//void setup_timer();
+void setup_timer(struct list_head* t, callback_func_t* cbs, int init_flag);
 /**
  * @brief  销毁所有定时器（包括秒级和微秒级的定时器），并释放内存。
  * @see    setup_timer
@@ -93,7 +94,8 @@ void handle_timer();
  * @see    ADD_TIMER_EVENT, REMOVE_TIMER, remove_timers, REMOVE_TIMERS
  */
 timer_struct_t* 
-add_timer_event(struct list_head* head, callback_func_t function, void* owner, void* data, uint32_t add_micro);
+//add_timer_event(struct list_head* head, callback_func_t function, void* owner, void* data, uint32_t add_micro);
+add_timer_event(struct list_head* head, int cb_index, void* owner, void* data, uint32_t add_micro);
 
 /**
  * @brief  添加/替换一个秒级定时器，该定时器的到期时间是expire，回调函数是register_timer函数根据定时器类型登记。
@@ -160,6 +162,7 @@ remove_timers(list_head_t* head)
  * @return 0，成功；-1，失败。
  */
 //int register_timer_callback(int nbr, callback_func_t cb);
+int register_timer_callback(int nbr, callback_func_t cb, int max_timer_type);
 
 /**
  * @brief 删除登记过的所有定时器类型
@@ -170,5 +173,6 @@ remove_timers(list_head_t* head)
  * @brief 程序在线加载text.so时，由于定时器回调函数的地址会发生变化，需要更新定时器类型id与回调函数的关系对应表
  */ 
 //void refresh_timers_callback();
+void refresh_timers_callback();
 
 #endif // COMMON_TIMER_H_
